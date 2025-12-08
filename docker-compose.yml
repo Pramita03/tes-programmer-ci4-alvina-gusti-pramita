@@ -6,11 +6,12 @@ services:
     build: .
     container_name: ci4_web
     ports:
-      - "8080:80"        # aplikasi nanti bisa dibuka di browser lewat port 8080
+      - "8080:80"        # aplikasi bisa dibuka lewat http://localhost:8080
     volumes:
-      - .:/var/www/html  # supaya perubahan file di laptop langsung terbaca di container
+      - .:/var/www/html  # sinkron direktori project
     depends_on:
-      - db               # pastikan database nyala dulu sebelum app jalan
+      - db
+      - minio            # supaya MinIO juga aktif
 
   db:
     image: mariadb:10.5
@@ -22,10 +23,24 @@ services:
       MYSQL_USER: ci4
       MYSQL_PASSWORD: ci4pass
     ports:
-      - "3307:3306"      # port 3307 di lokal → 3306 di container
+      - "3307:3306"
     volumes:
       - mariadbdata:/var/lib/mysql
 
+  minio:
+    image: minio/minio
+    container_name: penyimpanan_minio
+    restart: always
+    ports:
+      - "9000:9000"      # port API
+      - "9001:9001"      # port dashboard
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: miniosandi
+    command: server /data --console-address ":9001"
+    volumes:
+      - penyimpanandata:/data
+
 volumes:
   mariadbdata:
-    driver: local
+  penyimpanandata:
