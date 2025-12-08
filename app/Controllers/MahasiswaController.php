@@ -1,78 +1,89 @@
 <?php
-public function index()
+
+namespace App\Controllers;
+
+use App\Controllers\BaseController;
+use App\Models\MahasiswaModel;
+
+class MahasiswaController extends BaseController
 {
-$data['mahasiswa'] = $this->mModel->orderBy('created_at','DESC')->findAll();
-return view('mahasiswa/index',$data);
-}
+    protected $mhs;
 
+    public function __construct()
+    {
+        // Inisialisasi model supaya tidak berulang
+        $this->mhs = new MahasiswaModel();
+    }
 
-public function create()
-{
-helper('form');
-return view('mahasiswa/form');
-}
+    public function index()
+    {
+        // Ambil seluruh data mahasiswa
+        $data['list'] = $this->mhs->orderBy('id', 'DESC')->findAll();
 
+        return view('mahasiswa/index', $data);
+    }
 
-public function store()
-{
-$rules = [
-'nim' => 'required|is_unique[mahasiswa.nim]',
-'nama' => 'required'
-];
-if (!$this->validate($rules)) {
-return redirect()->back()->withInput()->with('errors',$this->validator->getErrors());
-}
+    public function tambah()
+    {
+        // Form tambah data
+        return view('mahasiswa/form');
+    }
 
+    public function simpan()
+    {
+        // Ambil file foto
+        $foto = $this->request->getFile('foto');
+        $namaFoto = null;
 
-$file = $this->request->getFile('foto');
-$fileName = null;
-if ($file && !$file->hasMoved()) {
-$fileName = $file->getRandomName();
-$file->move(WRITEPATH . '../public/uploads/mahasiswa/',$fileName);
-}
+        // Jika ada foto diupload
+        if ($foto && $foto->isValid()) {
+            $namaFoto = $foto->getRandomName();
+            $foto->move('uploads/foto_mahasiswa', $namaFoto);
+        }
 
+        // Simpan data ke database
+        $this->mhs->save([
+            'nim' => $this->request->getPost('nim'),
+            'nama' => $this->request->getPost('nama'),
+            'jenis_kelamin' => $this->request->getPost('jk'),
+            'email' => $this->request->getPost('email'),
+            'foto' => $namaFoto
+        ]);
 
-$this->mModel->save([
-'nim'=>$this->request->getPost('nim'),
-'nama'=>$this->request->getPost('nama'),
-'jenis_kelamin'=>$this->request->getPost('jenis_kelamin'),
-'tempat_lahir'=>$this->request->getPost('tempat_lahir'),
-'tanggal_lahir'=>$this->request->getPost('tanggal_lahir'),
-'alamat'=>$this->request->getPost('alamat'),
-'no_hp'=>$this->request->getPost('no_hp'),
-'email'=>$this->request->getPost('email'),
-'foto'=>$fileName
-]);
+        return redirect()->to('/mahasiswa')->with('pesan', 'Data berhasil ditambahkan');
+    }
 
+    public function edit($id)
+    {
+        $data['data'] = $this->mhs->find($id);
+        return view('mahasiswa/form', $data);
+    }
 
-return redirect()->to(site_url('mahasiswa'))->with('success','Data tersimpan');
-}
+    public function update($id)
+    {
+        $foto = $this->request->getFile('foto');
+        $namaFoto = $this->request->getPost('foto_lama'); // untuk mempertahankan foto lama
 
+        // Jika upload baru
+        if ($foto && $foto->isValid()) {
+            $namaFoto = $foto->getRandomName();
+            $foto->move('uploads/foto_mahasiswa', $namaFoto);
+        }
 
-public function edit($id)
-{
-$data['m'] = $this->mModel->find($id);
-return view('mahasiswa/form',$data);
-}
+        $this->mhs->update($id, [
+            'nim' => $this->request->getPost('nim'),
+            'nama' => $this->request->getPost('nama'),
+            'jenis_kelamin' => $this->request->getPost('jk'),
+            'email' => $this->request->getPost('email'),
+            'foto' => $namaFoto
+        ]);
 
+        return redirect()->to('/mahasiswa')->with('pesan', 'Data diperbarui');
+    }
 
-public function update($id)
-{
-$data = $this->request->getPost();
-$file = $this->request->getFile('foto');
-if ($file && $file->isValid()) {
-$fileName = $file->getRandomName();
-$file->move(WRITEPATH . '../public/uploads/mahasiswa/',$fileName);
-$data['foto'] = $fileName;
-}
-$this->mModel->update($id,$data);
-return redirect()->to(site_url('mahasiswa'))->with('success','Data diperbarui');
-}
-
-
-public function delete($id)
-{
-$this->mModel->delete($id);
-return redirect()->to(site_url('mahasiswa'))->with('success','Data dihapus');
-}
+    public function hapus($id)
+    {
+        $this->mhs->delete($id);
+        return redirect()->to('/mahasiswa')->with('pesan', 'Data dihapus');
+    }
 }
