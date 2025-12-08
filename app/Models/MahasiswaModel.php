@@ -1,14 +1,20 @@
 <?php
-namespace App\Models;
 
+namespace App\Models;
 
 use CodeIgniter\Model;
 
-
 class MahasiswaModel extends Model
 {
-protected $table = 'mahasiswa';
-protected $primaryKey = 'id_mahasiswa';
-protected $useTimestamps = true;
-protected $allowedFields = ['nim','nama','jenis_kelamin','tempat_lahir','tanggal_lahir','alamat','no_hp','email','foto'];
+    // Nama tabel mengikuti migration
+    protected $table = 'mahasiswa';
+    protected $primaryKey = 'id';
+
+    // Kolom yang boleh diisi
+    protected $allowedFields = [
+        'nim', 'nama', 'jenis_kelamin', 'email', 'foto'
+    ];
+
+    // Aktifkan auto timestamp CI4
+    protected $useTimestamps = true;
 }
