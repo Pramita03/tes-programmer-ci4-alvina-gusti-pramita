@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+
+  web:
+    build: .
+    container_name: ci4_web
+    ports:
+      - "8080:80"        # aplikasi nanti bisa dibuka di browser lewat port 8080
+    volumes:
+      - .:/var/www/html  # supaya perubahan file di laptop langsung terbaca di container
+    depends_on:
+      - db               # pastikan database nyala dulu sebelum app jalan
+
+  db:
+    image: mariadb:10.5
+    container_name: ci4_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_mahasiswa
+      MYSQL_USER: ci4
+      MYSQL_PASSWORD: ci4pass
+    ports:
+      - "3307:3306"      # port 3307 di lokal → 3306 di container
+    volumes:
+      - mariadbdata:/var/lib/mysql
+
+volumes:
+  mariadbdata:
+    driver: local
