@@ -40,6 +40,12 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - penyimpanandata:/data
+  redis:
+    image: redis:7
+    container_name: ci4_redis
+    restart: always
+    ports:
+      - "6379:6379"
 
 volumes:
   mariadbdata:
