@@ -1,36 +1,69 @@
-<h3>Data Mahasiswa</h3>
+<?= $this->extend('layout/app') ?>
+<?= $this->section('content') ?>
 
-<a href="/mahasiswa/tambah">+ Tambah</a>
+<h4 class="mb-3">Data Mahasiswa</h4>
+
+<a href="/mahasiswa/tambah" class="btn btn-primary mb-3">
+    <i class="fa fa-plus"></i> Tambah Mahasiswa
+</a>
 
 <?php if(session()->getFlashdata('pesan')): ?>
-    <p><?= session()->getFlashdata('pesan') ?></p>
+    <div class="alert alert-success">
+        <?= session()->getFlashdata('pesan') ?>
+    </div>
 <?php endif; ?>
 
-<table border="1" cellpadding="6">
-    <tr>
-        <th>NIM</th>
-        <th>Nama</th>
-        <th>JK</th>
-        <th>Email</th>
-        <th>Foto</th>
-        <th>Aksi</th>
-    </tr>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-striped table-bordered" id="tableMahasiswa">
+            <thead class="table-dark">
+                <tr>
+                    <th>NIM</th>
+                    <th>Nama</th>
+                    <th>JK</th>
+                    <th>Email</th>
+                    <th>Foto</th>
+                    <th width="140">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach($list as $r): ?>
+                <tr>
+                    <td><?= esc($r['nim']) ?></td>
+                    <td><?= esc($r['nama']) ?></td>
+                    <td><?= esc($r['jenis_kelamin']) ?></td>
+                    <td><?= esc($r['email']) ?></td>
+                    <td>
+                        <?php if($r['foto']): ?>
+                            <img src="/uploads/foto_mahasiswa/<?= esc($r['foto']) ?>"
+                                 class="rounded" width="60">
+                        <?php else: ?>
+                            <span class="text-muted">-</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <a href="/mahasiswa/edit/<?= $r['id'] ?>" class="btn btn-sm btn-warning">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                        <a href="/mahasiswa/hapus/<?= $r['id'] ?>"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Hapus data ini?')">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    <?php foreach($list as $r): ?>
-    <tr>
-        <td><?= $r['nim'] ?></td>
-        <td><?= $r['nama'] ?></td>
-        <td><?= $r['jenis_kelamin'] ?></td>
-        <td><?= $r['email'] ?></td>
-        <td>
-            <?php if($r['foto']): ?>
-                <img src="/uploads/foto_mahasiswa/<?= $r['foto'] ?>" width="60">
-            <?php endif; ?>
-        </td>
-        <td>
-            <a href="/mahasiswa/edit/<?= $r['id'] ?>">Edit</a> |
-            <a href="/mahasiswa/hapus/<?= $r['id'] ?>" onclick="return confirm('Hapus?')">Hapus</a>
-        </td>
-    </tr>
-    <?php endforeach; ?>
-</table>
+<?= $this->endSection() ?>
+
+<?= $this->section('script') ?>
+<script>
+    $(document).ready(function () {
+        $('#tableMahasiswa').DataTable();
+    });
+</script>
+<?= $this->endSection() ?>
