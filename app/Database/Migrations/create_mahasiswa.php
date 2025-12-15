@@ -4,15 +4,14 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class Mahasiswa extends Migration
+class CreateMahasiswaTable extends Migration
 {
     public function up()
     {
-        // Struktur tabel mahasiswa
-        // Catatan: isian dibuat yang wajar dipakai kampus
         $this->forge->addField([
             'id' => [
                 'type' => 'INT',
+                'constraint' => 11,
                 'unsigned' => true,
                 'auto_increment' => true
             ],
@@ -43,6 +42,7 @@ class Mahasiswa extends Migration
         ]);
 
         $this->forge->addKey('id', true);
+        $this->forge->addUniqueKey('nim');
         $this->forge->createTable('mahasiswa');
     }
 
