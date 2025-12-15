@@ -8,18 +8,32 @@ class KrsModel extends Model
 {
     protected $table = 'krs';
     protected $primaryKey = 'id';
+
+    // Field yang boleh diisi
     protected $allowedFields = [
-        'id_mahasiswa', 'id_matakuliah',
-        'tahun_akademik', 'semester'
+        'mahasiswa_id',
+        'matakuliah_id',
+        'tahun_akademik',
+        'semester'
     ];
+
     protected $useTimestamps = true;
 
-    // Untuk menampilkan daftar KRS lengkap dengan nama mahasiswa dan nama MK
+    // =========================
+    // AMBIL DATA KRS + RELASI
+    // (opsional, nilai plus)
+    // =========================
     public function getLengkap()
     {
-        return $this->select('krs.*, mahasiswa.nama AS nama_mahasiswa, matakuliah.nama_mk')
-            ->join('mahasiswa', 'mahasiswa.id = krs.id_mahasiswa')
-            ->join('matakuliah', 'matakuliah.id = krs.id_matakuliah')
+        return $this->select(
+                'krs.id,
+                 mahasiswa.nama AS nama_mahasiswa,
+                 matakuliah.nama_mk,
+                 krs.tahun_akademik,
+                 krs.semester'
+            )
+            ->join('mahasiswa', 'mahasiswa.id = krs.mahasiswa_id')
+            ->join('matakuliah', 'matakuliah.id = krs.matakuliah_id')
             ->findAll();
     }
 }
