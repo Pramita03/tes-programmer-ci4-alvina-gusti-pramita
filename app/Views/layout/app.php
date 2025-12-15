@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
 
-    <!-- Judul halaman (bisa dikirim dari controller) -->
+    <!-- Judul halaman (opsional dari controller) -->
     <title><?= esc($title ?? 'Aplikasi Akademik') ?></title>
 
     <!-- CSS utama aplikasi -->
@@ -11,27 +11,18 @@
 </head>
 <body>
 
-<!-- Navbar atas -->
-<div class="navbar">
-    <!-- Nama aplikasi -->
-    <div class="brand">Aplikasi Akademik</div>
+<!-- ================= SIDEBAR ================= -->
+<!-- Sidebar dipanggil satu kali di layout -->
+<?= view('layout/sidebar') ?>
 
-    <!-- Menu navigasi -->
-    <div class="nav-menu">
-        <a href="<?= base_url('mahasiswa') ?>">Mahasiswa</a>
-        <a href="<?= base_url('matakuliah') ?>">Mata Kuliah</a>
-        <a href="<?= base_url('krs') ?>">KRS</a>
-        <a href="<?= base_url('logout') ?>" class="logout">Logout</a>
-    </div>
-</div>
-
-<!-- Konten utama -->
-<div class="container">
+<!-- ================= KONTEN UTAMA ================= -->
+<!-- margin-left disesuaikan dengan lebar sidebar -->
+<div class="container" style="margin-left:260px; padding:20px">
     <?= $this->renderSection('content') ?>
 </div>
 
-<!-- Footer -->
-<footer class="footer">
+<!-- ================= FOOTER ================= -->
+<footer class="footer" style="margin-left:260px">
     <p>© <?= date('Y') ?> Tes Programmer CI4</p>
 </footer>
 
