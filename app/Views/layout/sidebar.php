@@ -1,23 +1,8 @@
-<div class="bg-dark text-white p-3" style="width:260px; min-height:100vh">
-    <h5 class="mb-4">
-        <i class="fa-solid fa-graduation-cap"></i> Akademik
-    </h5>
+<!-- Sidebar navigasi -->
+<div class="sidebar">
+    <h3 class="sidebar-title">Akademik</h3>
 
-    <ul class="nav nav-pills flex-column gap-2">
-        <li class="nav-item">
-            <a href="/mahasiswa" class="nav-link text-white">
-                <i class="fa fa-users"></i> Mahasiswa
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/matakuliah" class="nav-link text-white">
-                <i class="fa fa-book"></i> Mata Kuliah
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/krs" class="nav-link text-white">
-                <i class="fa fa-list"></i> KRS
-            </a>
-        </li>
-    </ul>
+    <a href="<?= base_url('mahasiswa') ?>">Mahasiswa</a>
+    <a href="<?= base_url('matakuliah') ?>">Mata Kuliah</a>
+    <a href="<?= base_url('krs') ?>">KRS</a>
 </div>
