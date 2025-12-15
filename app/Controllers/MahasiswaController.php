@@ -2,88 +2,136 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Models\MahasiswaModel;
 
-class MahasiswaController extends BaseController
+class Mahasiswa extends BaseController
 {
-    protected $mhs;
+    protected $mahasiswa;
 
     public function __construct()
     {
-        // Inisialisasi model supaya tidak berulang
-        $this->mhs = new MahasiswaModel();
+        $this->mahasiswa = new MahasiswaModel();
     }
 
+    // =========================
+    // TAMPIL DATA
+    // =========================
     public function index()
     {
-        // Ambil seluruh data mahasiswa
-        $data['list'] = $this->mhs->orderBy('id', 'DESC')->findAll();
-
-        return view('mahasiswa/index', $data);
+        return view('mahasiswa/index', [
+            'title' => 'Data Mahasiswa',
+            'list'  => $this->mahasiswa->findAll()
+        ]);
     }
 
+    // =========================
+    // FORM TAMBAH
+    // =========================
     public function tambah()
     {
-        // Form tambah data
-        return view('mahasiswa/form');
+        return view('mahasiswa/form', [
+            'title' => 'Tambah Mahasiswa'
+        ]);
     }
 
+    // =========================
+    // SIMPAN DATA BARU
+    // =========================
     public function simpan()
     {
-        // Ambil file foto
+        // Validasi input
+        if (!$this->validate([
+            'nim'   => 'required|is_unique[mahasiswa.nim]',
+            'nama'  => 'required',
+            'email' => 'required|valid_email',
+            'foto'  => 'permit_empty|is_image[foto]|max_size[foto,2048]'
+        ])) {
+            // Kembali ke form jika gagal
+            return redirect()->back()->withInput();
+        }
+
+        // Proses upload foto (jika ada)
         $foto = $this->request->getFile('foto');
         $namaFoto = null;
 
-        // Jika ada foto diupload
         if ($foto && $foto->isValid()) {
             $namaFoto = $foto->getRandomName();
             $foto->move('uploads/foto_mahasiswa', $namaFoto);
         }
 
-        // Simpan data ke database
-        $this->mhs->save([
-            'nim' => $this->request->getPost('nim'),
-            'nama' => $this->request->getPost('nama'),
-            'jenis_kelamin' => $this->request->getPost('jk'),
-            'email' => $this->request->getPost('email'),
-            'foto' => $namaFoto
+        // Simpan ke database
+        $this->mahasiswa->insert([
+            'nim'            => $this->request->getPost('nim'),
+            'nama'           => $this->request->getPost('nama'),
+            'jenis_kelamin'  => $this->request->getPost('jk'),
+            'email'          => $this->request->getPost('email'),
+            'foto'           => $namaFoto
         ]);
 
-        return redirect()->to('/mahasiswa')->with('pesan', 'Data berhasil ditambahkan');
+        // Flash message
+        session()->setFlashdata('pesan', 'Data mahasiswa berhasil ditambahkan');
+
+        return redirect()->to('/mahasiswa');
     }
 
+    // =========================
+    // FORM EDIT
+    // =========================
     public function edit($id)
     {
-        $data['data'] = $this->mhs->find($id);
-        return view('mahasiswa/form', $data);
+        return view('mahasiswa/form', [
+            'title' => 'Edit Mahasiswa',
+            'data'  => $this->mahasiswa->find($id)
+        ]);
     }
 
+    // =========================
+    // UPDATE DATA
+    // =========================
     public function update($id)
     {
-        $foto = $this->request->getFile('foto');
-        $namaFoto = $this->request->getPost('foto_lama'); // untuk mempertahankan foto lama
+        // Ambil data lama
+        $lama = $this->mahasiswa->find($id);
 
-        // Jika upload baru
+        // Validasi
+        if (!$this->validate([
+            'nim'   => 'required',
+            'nama'  => 'required',
+            'email' => 'required|valid_email',
+            'foto'  => 'permit_empty|is_image[foto]|max_size[foto,2048]'
+        ])) {
+            return redirect()->back()->withInput();
+        }
+
+        // Proses foto
+        $foto = $this->request->getFile('foto');
+        $namaFoto = $lama['foto'];
+
         if ($foto && $foto->isValid()) {
             $namaFoto = $foto->getRandomName();
             $foto->move('uploads/foto_mahasiswa', $namaFoto);
         }
 
-        $this->mhs->update($id, [
-            'nim' => $this->request->getPost('nim'),
-            'nama' => $this->request->getPost('nama'),
+        // Update database
+        $this->mahasiswa->update($id, [
+            'nim'           => $this->request->getPost('nim'),
+            'nama'          => $this->request->getPost('nama'),
             'jenis_kelamin' => $this->request->getPost('jk'),
-            'email' => $this->request->getPost('email'),
-            'foto' => $namaFoto
+            'email'         => $this->request->getPost('email'),
+            'foto'          => $namaFoto
         ]);
 
-        return redirect()->to('/mahasiswa')->with('pesan', 'Data diperbarui');
+        session()->setFlashdata('pesan', 'Data mahasiswa berhasil diubah');
+        return redirect()->to('/mahasiswa');
     }
 
+    // =========================
+    // HAPUS DATA
+    // =========================
     public function hapus($id)
     {
-        $this->mhs->delete($id);
-        return redirect()->to('/mahasiswa')->with('pesan', 'Data dihapus');
+        $this->mahasiswa->delete($id);
+        session()->setFlashdata('pesan', 'Data mahasiswa berhasil dihapus');
+        return redirect()->to('/mahasiswa');
     }
 }
